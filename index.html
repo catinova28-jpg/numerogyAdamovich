@@ -139,6 +139,21 @@
             color: #fff;
         }
 
+        .btn-secondary {
+            background: transparent !important;
+            border: 2px solid var(--gold) !important;
+            color: var(--gold) !important;
+            box-shadow: none !important;
+            font-size: 13px !important;
+            padding: 14px 20px !important;
+            animation: none !important;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(168, 134, 45, 0.08) !important;
+            transform: translateY(-2px);
+        }
+
         .section-divider {
             height: 1px;
             background: linear-gradient(90deg, transparent, var(--gold), transparent);
@@ -1584,10 +1599,11 @@
                     </div>
 
                     <div class="card-price">
-                        <span class="old-price">55 000 руб</span>
+                        <span class="old-price">70 000 руб</span>
                         <span class="new-price shimmer-text">45 000 руб</span>
                     </div>
-                    <a href="#" onclick="openBuyModal('Полный разбор (120 мин)', '55 000', '45 000', 'full'); return false;" class="btn btn-full btn-pulse">Записаться</a>
+                    <a href="#" onclick="openBuyModal('Полный разбор (120 мин)', '70 000', '45 000', 'full'); return false;" class="btn btn-full btn-pulse">Купить сейчас</a>
+                    <a href="#" onclick="openModal(); return false;" class="btn btn-full btn-secondary" style="margin-top: 10px;">Записаться на диагностику</a>
                     <p class="product-format">📹 ZOOM-сессия • Запись навсегда</p>
                 </div>
 
@@ -1614,7 +1630,8 @@
                         <span class="old-price">120 000 руб</span>
                         <span class="new-price shimmer-text">80 000 руб</span>
                     </div>
-                    <a href="#" onclick="openBuyModal('ВИП-разбор (3,5–4 часа)', '120 000', '80 000', 'vip'); return false;" class="btn btn-full btn-pulse">Записаться на ВИП</a>
+                    <a href="#" onclick="openBuyModal('ВИП-разбор (3,5–4 часа)', '120 000', '80 000', 'vip'); return false;" class="btn btn-full btn-pulse">Купить сейчас</a>
+                    <a href="#" onclick="openModal(); return false;" class="btn btn-full btn-secondary" style="margin-top: 10px;">Записаться на диагностику</a>
                     <p class="product-format">📹 ZOOM-сессия 3,5–4 часа • Запись навсегда</p>
                 </div>
             </div>

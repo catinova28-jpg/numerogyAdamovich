@@ -1,0 +1,21 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Temp files
+*.tmp
+*.bak
+
+# Source docs (not needed on server)
+*.docx
+*.pdf
+idea.md
+internet-market.md
+index-dark.html

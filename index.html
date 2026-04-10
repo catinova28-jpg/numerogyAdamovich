@@ -795,6 +795,56 @@
             font-size: 15px;
         }
 
+        /* --- Purchase Modal --- */
+        .buy-modal-product {
+            background: var(--gold-pale);
+            border: 1px solid rgba(168, 134, 45, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .buy-modal-product .bm-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .buy-modal-product .bm-price {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--gold);
+        }
+
+        .buy-modal-product .bm-old-price {
+            font-size: 15px;
+            color: var(--text-muted);
+            text-decoration: line-through;
+            margin-right: 10px;
+        }
+
+        .buy-modal-note {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #166534;
+            line-height: 1.5;
+        }
+
+        .buy-modal-note .note-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
         /* --- Form --- */
         .form-card {
             background: var(--bg-card);
@@ -1383,7 +1433,7 @@
                         <span class="old-price">5 000 руб</span>
                         <span class="new-price shimmer-text">1 490 руб</span>
                     </div>
-                    <a href="#" id="challenge-buy-btn" class="btn btn-full btn-pulse">ЗАРЕГИСТРИРОВАТЬСЯ НА ЧЕЛЛЕНДЖ</a>
+                    <a href="#" onclick="openBuyModal('Челлендж «Код денег» — 5 дней', '5 000', '1 490', 'challenge'); return false;" class="btn btn-full btn-pulse">ЗАРЕГИСТРИРОВАТЬСЯ НА ЧЕЛЛЕНДЖ</a>
                     <p class="product-format">📱 Проходит в закрытом Telegram-канале</p>
                 </div>
             </div>
@@ -1423,7 +1473,7 @@
                         <span class="old-price">5 490 руб</span>
                         <span class="new-price">1 470 руб</span>
                     </div>
-                    <a href="#" class="btn btn-full">Получить курс</a>
+                    <a href="#" onclick="openBuyModal('Курс «Отношения и совместимость»', '5 490', '1 470', 'relations'); return false;" class="btn btn-full">Получить курс</a>
                     <p class="product-format">📱 Доступ в закрытом Telegram-канале</p>
                 </div>
 
@@ -1450,7 +1500,7 @@
                         <span class="old-price">33 000 руб</span>
                         <span class="new-price">9 900 руб</span>
                     </div>
-                    <a href="#" class="btn btn-full">Получить курс</a>
+                    <a href="#" onclick="openBuyModal('Курс «Финансовый код успеха»', '33 000', '9 900', 'fincode'); return false;" class="btn btn-full">Получить курс</a>
                     <p class="product-format">📱 Доступ в закрытом Telegram-канале</p>
                 </div>
 
@@ -1476,7 +1526,7 @@
                         <span class="old-price">9 900 руб</span>
                         <span class="new-price">1 970 руб</span>
                     </div>
-                    <a href="#" class="btn btn-full">Получить курс</a>
+                    <a href="#" onclick="openBuyModal('Курс «Кайдзен-планирование»', '9 900', '1 970', 'kaizen'); return false;" class="btn btn-full">Получить курс</a>
                     <p class="product-format">📱 Доступ в закрытом Telegram-канале</p>
                 </div>
             </div>
@@ -1510,7 +1560,7 @@
                         <span class="old-price">15 000 руб</span>
                         <span class="new-price">10 000 руб</span>
                     </div>
-                    <a href="#" class="btn btn-full">Заказать разбор</a>
+                    <a href="#" onclick="openBuyModal('Экспресс-разбор', '15 000', '10 000', 'express'); return false;" class="btn btn-full">Заказать разбор</a>
                     <p class="product-format">🎙 Аудио-ответ в Telegram</p>
                 </div>
 
@@ -1537,7 +1587,7 @@
                         <span class="old-price">55 000 руб</span>
                         <span class="new-price shimmer-text">45 000 руб</span>
                     </div>
-                    <a href="#" class="btn btn-full btn-pulse">Записаться</a>
+                    <a href="#" onclick="openBuyModal('Полный разбор (120 мин)', '55 000', '45 000', 'full'); return false;" class="btn btn-full btn-pulse">Записаться</a>
                     <p class="product-format">📹 ZOOM-сессия • Запись навсегда</p>
                 </div>
 
@@ -1564,7 +1614,7 @@
                         <span class="old-price">120 000 руб</span>
                         <span class="new-price shimmer-text">80 000 руб</span>
                     </div>
-                    <a href="#" class="btn btn-full btn-pulse">Записаться на ВИП</a>
+                    <a href="#" onclick="openBuyModal('ВИП-разбор (3,5–4 часа)', '120 000', '80 000', 'vip'); return false;" class="btn btn-full btn-pulse">Записаться на ВИП</a>
                     <p class="product-format">📹 ZOOM-сессия 3,5–4 часа • Запись навсегда</p>
                 </div>
             </div>
@@ -1768,6 +1818,47 @@
             </div>
         </section>
 
+        <!-- --- Purchase Modal (mini registration before payment) --- -->
+        <div class="modal-overlay" id="buy-modal">
+            <div class="modal-content" style="max-width: 480px;">
+                <span class="modal-close" onclick="closeBuyModal()">&times;</span>
+                
+                <h2 style="margin-bottom: 5px; font-size: 24px;">Оформление заказа</h2>
+                <p style="color: var(--text-secondary); font-size: 14px; margin-bottom: 25px;">Заполните данные для получения доступа</p>
+                
+                <div class="buy-modal-product">
+                    <div class="bm-name" id="bm-product-name">Продукт</div>
+                    <div>
+                        <span class="bm-old-price" id="bm-old-price">5 000 руб</span>
+                        <span class="bm-price" id="bm-new-price">1 490 руб</span>
+                    </div>
+                </div>
+
+                <form id="buy-form">
+                    <input type="hidden" name="product_id" id="bm-product-id">
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label>Ваше имя *</label>
+                        <input type="text" name="client_name" id="bm-name" placeholder="Иван" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label>Фамилия *</label>
+                        <input type="text" name="client_surname" id="bm-surname" placeholder="Иванов" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom: 30px;">
+                        <label>Email * <span style="color: var(--text-muted); font-weight: 400;">(сюда придёт доступ)</span></label>
+                        <input type="email" name="client_email" id="bm-email" placeholder="email@example.com" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-full btn-pulse" id="bm-submit-btn">ПЕРЕЙТИ К ОПЛАТЕ →</button>
+                    
+                    <div class="buy-modal-note">
+                        <span class="note-icon">🔒</span>
+                        <span>После оплаты на ваш email автоматически придёт письмо со ссылкой для доступа к материалам. Оплата безопасна и защищена.</span>
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <!-- --- Diagnostic Modal --- -->
         <div class="modal-overlay" id="diagnostic-modal">
             <div class="modal-content">
@@ -1937,7 +2028,7 @@
         window.addEventListener('scroll', animateCounters);
         animateCounters();
 
-        /* --- Modal Logic --- */
+        /* --- Modal Logic (Diagnostic) --- */
         const modal = document.getElementById('diagnostic-modal');
         
         function openModal() {
@@ -1954,9 +2045,76 @@
             if (e.target === modal) closeModal();
         });
 
-        // Close on Escape
+        /* --- Purchase Modal Logic --- */
+        const buyModal = document.getElementById('buy-modal');
+
+        // Prodamus payment links per product (REPLACE with actual links)
+        const PRODAMUS_LINKS = {
+            'challenge': '#PRODAMUS_CHALLENGE_LINK',
+            'relations': '#PRODAMUS_RELATIONS_LINK',
+            'fincode':   '#PRODAMUS_FINCODE_LINK',
+            'kaizen':    '#PRODAMUS_KAIZEN_LINK',
+            'express':   '#PRODAMUS_EXPRESS_LINK',
+            'full':      '#PRODAMUS_FULL_LINK',
+            'vip':       '#PRODAMUS_VIP_LINK'
+        };
+
+        function openBuyModal(productName, oldPrice, newPrice, productId) {
+            document.getElementById('bm-product-name').textContent = productName;
+            document.getElementById('bm-old-price').textContent = oldPrice + ' руб';
+            document.getElementById('bm-new-price').textContent = newPrice + ' руб';
+            document.getElementById('bm-product-id').value = productId;
+            document.getElementById('buy-form').reset();
+            document.getElementById('bm-product-name').textContent = productName;
+            buyModal.classList.add('active');
+            document.body.classList.add('modal-open');
+        }
+
+        function closeBuyModal() {
+            buyModal.classList.remove('active');
+            document.body.classList.remove('modal-open');
+        }
+
+        buyModal.addEventListener('click', (e) => {
+            if (e.target === buyModal) closeBuyModal();
+        });
+
+        // Purchase form submission → redirect to Prodamus
+        document.getElementById('buy-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('bm-name').value.trim();
+            const surname = document.getElementById('bm-surname').value.trim();
+            const email = document.getElementById('bm-email').value.trim();
+            const productId = document.getElementById('bm-product-id').value;
+            const btn = document.getElementById('bm-submit-btn');
+            
+            btn.innerText = 'ПЕРЕХОДИМ К ОПЛАТЕ...';
+            btn.disabled = true;
+
+            // Build Prodamus URL with client data
+            const prodamusBase = PRODAMUS_LINKS[productId] || '#';
+            
+            if (prodamusBase === '#' || prodamusBase.includes('PRODAMUS')) {
+                // Links not set yet — show message
+                alert('Спасибо, ' + name + '! Ссылка на оплату скоро будет настроена. Ваши данные сохранены — с вами свяжется ассистент.');
+                closeBuyModal();
+                btn.innerText = 'ПЕРЕЙТИ К ОПЛАТЕ →';
+                btn.disabled = false;
+                return;
+            }
+
+            // Redirect to Prodamus with pre-filled data
+            const separator = prodamusBase.includes('?') ? '&' : '?';
+            const paymentUrl = prodamusBase + separator + 
+                'customer_name=' + encodeURIComponent(name + ' ' + surname) + 
+                '&customer_email=' + encodeURIComponent(email);
+            
+            window.location.href = paymentUrl;
+        });
+
+        // Close any modal on Escape
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeModal();
+            if (e.key === 'Escape') { closeModal(); closeBuyModal(); }
         });
 
         // Form Submission

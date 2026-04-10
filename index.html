@@ -2186,7 +2186,7 @@
             if (e.key === 'Escape') { closeModal(); closeBuyModal(); }
         });
 
-        // Form Submission
+        // Diagnostic Form Submission → send to Telegram
         document.getElementById('qualifying-form').addEventListener('submit', function(e) {
             e.preventDefault();
             const btn = this.querySelector('button[type="submit"]');
@@ -2195,14 +2195,37 @@
             btn.innerText = 'ОТПРАВЛЯЕМ...';
             btn.disabled = true;
 
-            // Simulation of submission (replace with actual endpoint)
-            setTimeout(() => {
+            // Collect all form data
+            const formData = new FormData(this);
+            const name = formData.get('name') || '—';
+            const whatsapp = formData.get('whatsapp') || '—';
+            const telegram = formData.get('telegram') || '—';
+            const niche = formData.get('niche') || '—';
+            
+            // Checkboxes
+            const statuses = formData.getAll('status').join(', ') || '—';
+            const income = formData.get('income') || '—';
+            const goals = formData.getAll('goal').join(', ') || '—';
+            const readiness = formData.get('readiness') || '—';
+
+            const tgMessage = `📋 <b>Новая заявка на диагностику!</b>\n\n`
+                + `👤 <b>${name}</b>\n`
+                + `📱 WhatsApp: ${whatsapp}\n`
+                + `✈️ Telegram: ${telegram}\n\n`
+                + `💼 Статус: ${statuses}\n`
+                + `🏢 Ниша: ${niche}\n`
+                + `💰 Доход: ${income} тыс. руб\n\n`
+                + `🎯 Запрос: ${goals}\n`
+                + `🔥 Готовность: ${readiness}/10\n\n`
+                + `❗ <b>Связаться для записи на диагностику</b>`;
+
+            sendTgNotification(tgMessage).then(() => {
                 alert('Спасибо! Ваша анкета отправлена. Сергей или его ассистент свяжутся с вами в ближайшее время.');
                 closeModal();
                 btn.innerText = originalText;
                 btn.disabled = false;
                 this.reset();
-            }, 1500);
+            });
         });
 
         /* --- Sticky Nav on Scroll --- */

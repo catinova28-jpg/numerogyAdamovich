@@ -1836,6 +1836,7 @@
 
                 <form id="buy-form">
                     <input type="hidden" name="product_id" id="bm-product-id">
+                    <input type="hidden" name="product_type" id="bm-product-type">
                     <div class="form-group" style="margin-bottom: 20px;">
                         <label>Ваше имя *</label>
                         <input type="text" name="client_name" id="bm-name" placeholder="Иван" required>
@@ -1844,16 +1845,21 @@
                         <label>Фамилия *</label>
                         <input type="text" name="client_surname" id="bm-surname" placeholder="Иванов" required>
                     </div>
-                    <div class="form-group" style="margin-bottom: 30px;">
-                        <label>Email * <span style="color: var(--text-muted); font-weight: 400;">(сюда придёт доступ)</span></label>
+                    <div class="form-group" style="margin-bottom: 20px;">
+                        <label>Email * <span style="color: var(--text-muted); font-weight: 400;">(сюда придёт подтверждение)</span></label>
                         <input type="email" name="client_email" id="bm-email" placeholder="email@example.com" required>
+                    </div>
+                    <!-- Contact field for individual sessions -->
+                    <div class="form-group" style="margin-bottom: 30px;" id="bm-contact-group">
+                        <label>Telegram или WhatsApp * <span style="color: var(--text-muted); font-weight: 400;">(для связи и записи)</span></label>
+                        <input type="text" name="client_contact" id="bm-contact" placeholder="@username или +7 (...">
                     </div>
                     
                     <button type="submit" class="btn btn-full btn-pulse" id="bm-submit-btn">ПЕРЕЙТИ К ОПЛАТЕ →</button>
                     
-                    <div class="buy-modal-note">
+                    <div class="buy-modal-note" id="bm-note">
                         <span class="note-icon">🔒</span>
-                        <span>После оплаты на ваш email автоматически придёт письмо со ссылкой для доступа к материалам. Оплата безопасна и защищена.</span>
+                        <span id="bm-note-text">После оплаты на ваш email автоматически придёт письмо со ссылкой для доступа к материалам. Оплата безопасна и защищена.</span>
                     </div>
                 </form>
             </div>
@@ -2047,6 +2053,11 @@
 
         /* --- Purchase Modal Logic --- */
         const buyModal = document.getElementById('buy-modal');
+        const contactGroup = document.getElementById('bm-contact-group');
+        const contactInput = document.getElementById('bm-contact');
+
+        // Products that are individual sessions (need Telegram/WhatsApp)
+        const SESSION_PRODUCTS = ['express', 'full', 'vip'];
 
         // Prodamus payment links per product (REPLACE with actual links)
         const PRODAMUS_LINKS = {
@@ -2059,13 +2070,31 @@
             'vip':       '#PRODAMUS_VIP_LINK'
         };
 
+        // Telegram Bot config (REPLACE with your bot token and chat ID)
+        const TG_BOT_TOKEN = 'YOUR_BOT_TOKEN';
+        const TG_CHAT_ID = 'YOUR_CHAT_ID';
+
         function openBuyModal(productName, oldPrice, newPrice, productId) {
             document.getElementById('bm-product-name').textContent = productName;
             document.getElementById('bm-old-price').textContent = oldPrice + ' руб';
             document.getElementById('bm-new-price').textContent = newPrice + ' руб';
             document.getElementById('bm-product-id').value = productId;
             document.getElementById('buy-form').reset();
-            document.getElementById('bm-product-name').textContent = productName;
+
+            const isSession = SESSION_PRODUCTS.includes(productId);
+            document.getElementById('bm-product-type').value = isSession ? 'session' : 'course';
+
+            // Show/hide contact field
+            if (isSession) {
+                contactGroup.style.display = 'block';
+                contactInput.required = true;
+                document.getElementById('bm-note-text').textContent = 'После оплаты наш ассистент свяжется с вами для записи на удобное время. Оплата безопасна и защищена.';
+            } else {
+                contactGroup.style.display = 'none';
+                contactInput.required = false;
+                document.getElementById('bm-note-text').textContent = 'После оплаты на ваш email автоматически придёт письмо со ссылкой на закрытый Telegram-канал. Оплата безопасна и защищена.';
+            }
+
             buyModal.classList.add('active');
             document.body.classList.add('modal-open');
         }
@@ -2079,24 +2108,64 @@
             if (e.target === buyModal) closeBuyModal();
         });
 
-        // Purchase form submission → redirect to Prodamus
+        // Send notification to Telegram bot
+        async function sendTgNotification(message) {
+            if (TG_BOT_TOKEN === 'YOUR_BOT_TOKEN') return; // Not configured yet
+            try {
+                await fetch(`https://api.telegram.org/bot${TG_BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: TG_CHAT_ID,
+                        text: message,
+                        parse_mode: 'HTML'
+                    })
+                });
+            } catch (err) {
+                console.log('TG notification error:', err);
+            }
+        }
+
+        // Purchase form submission
         document.getElementById('buy-form').addEventListener('submit', function(e) {
             e.preventDefault();
             const name = document.getElementById('bm-name').value.trim();
             const surname = document.getElementById('bm-surname').value.trim();
             const email = document.getElementById('bm-email').value.trim();
+            const contact = document.getElementById('bm-contact').value.trim();
             const productId = document.getElementById('bm-product-id').value;
+            const productType = document.getElementById('bm-product-type').value;
+            const productName = document.getElementById('bm-product-name').textContent;
+            const newPrice = document.getElementById('bm-new-price').textContent;
             const btn = document.getElementById('bm-submit-btn');
             
             btn.innerText = 'ПЕРЕХОДИМ К ОПЛАТЕ...';
             btn.disabled = true;
 
+            // Send Telegram notification
+            let tgMessage = '';
+            if (productType === 'session') {
+                tgMessage = `💰 <b>Новая заявка на разбор!</b>\n\n`
+                    + `📌 <b>${productName}</b>\n`
+                    + `💵 ${newPrice}\n\n`
+                    + `👤 ${name} ${surname}\n`
+                    + `📧 ${email}\n`
+                    + `📱 ${contact}\n\n`
+                    + `❗ <b>Свяжитесь для записи на удобное время</b>`;
+            } else {
+                tgMessage = `💰 <b>Новая покупка курса!</b>\n\n`
+                    + `📌 <b>${productName}</b>\n`
+                    + `💵 ${newPrice}\n\n`
+                    + `👤 ${name} ${surname}\n`
+                    + `📧 ${email}`;
+            }
+            sendTgNotification(tgMessage);
+
             // Build Prodamus URL with client data
             const prodamusBase = PRODAMUS_LINKS[productId] || '#';
             
             if (prodamusBase === '#' || prodamusBase.includes('PRODAMUS')) {
-                // Links not set yet — show message
-                alert('Спасибо, ' + name + '! Ссылка на оплату скоро будет настроена. Ваши данные сохранены — с вами свяжется ассистент.');
+                alert('Спасибо, ' + name + '! Ссылка на оплату скоро будет настроена. Ваши данные сохранены \u2014 с вами свяжется ассистент.');
                 closeBuyModal();
                 btn.innerText = 'ПЕРЕЙТИ К ОПЛАТЕ →';
                 btn.disabled = false;

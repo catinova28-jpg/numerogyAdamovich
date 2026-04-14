@@ -207,9 +207,8 @@
         }
 
         .video-container {
-            max-width: 800px;
+            max-width: 500px;
             margin: 0 auto 40px;
-            aspect-ratio: 16/9;
             background: linear-gradient(135deg, #f8f6f0 0%, #f0ede4 100%);
             border-radius: 20px;
             border: 1px solid rgba(168, 134, 45, 0.1);
@@ -220,6 +219,146 @@
             overflow: hidden;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
         }
+
+        .video-container img,
+        .video-container video {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+        }
+
+        /* --- Video Player --- */
+        .video-wrapper {
+            position: relative;
+            max-width: 500px;
+            margin: 0 auto 40px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            background: #000;
+            cursor: pointer;
+        }
+
+        .video-wrapper video {
+            width: 100%;
+            display: block;
+            object-fit: cover;
+        }
+
+        /* Big play overlay (before start) */
+        .vp-start-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            background: rgba(0,0,0,0.35);
+            transition: opacity 0.3s ease;
+            z-index: 10;
+        }
+        .vp-start-overlay.hidden { opacity: 0; pointer-events: none; }
+
+        .vp-play-btn {
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--gold), #8E6E20);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 8px 30px rgba(168,134,45,0.5);
+            transition: transform 0.25s, box-shadow 0.25s;
+        }
+        .vp-start-overlay:hover .vp-play-btn {
+            transform: scale(1.1);
+            box-shadow: 0 12px 40px rgba(168,134,45,0.7);
+        }
+        .vp-play-btn::after {
+            content: '';
+            border-left: 26px solid #fff;
+            border-top: 16px solid transparent;
+            border-bottom: 16px solid transparent;
+            margin-left: 6px;
+        }
+        .vp-start-label {
+            color: #fff; font-size: 14px; font-weight: 600;
+            letter-spacing: 1px; text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+        }
+
+        /* Controls bar */
+        .vp-controls {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            padding: 8px 12px 10px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.75));
+            z-index: 20;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .video-wrapper:hover .vp-controls,
+        .video-wrapper.playing .vp-controls {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* Progress bar */
+        .vp-progress {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 4px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            position: relative;
+        }
+        .vp-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--gold);
+            border-radius: 4px;
+            transition: width 0.1s linear;
+            pointer-events: none;
+        }
+
+        /* Bottom row */
+        .vp-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .vp-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            padding: 4px;
+            font-size: 18px;
+            line-height: 1;
+            opacity: 0.9;
+            transition: opacity 0.2s, transform 0.2s;
+            flex-shrink: 0;
+        }
+        .vp-btn:hover { opacity: 1; transform: scale(1.15); }
+
+        .vp-time {
+            color: rgba(255,255,255,0.8);
+            font-size: 12px;
+            white-space: nowrap;
+            flex: 1;
+        }
+
+        .vp-speed {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
+            border-radius: 4px;
+            font-size: 12px;
+            padding: 3px 6px;
+            cursor: pointer;
+            outline: none;
+        }
+        .vp-speed option { background: #222; color: #fff; }
 
         .video-placeholder {
             display: flex;
@@ -720,12 +859,18 @@
 
         .about-img {
             width: 100%;
-            aspect-ratio: 4/5;
             background: #fdfdfd;
             border-radius: 30px;
             overflow: hidden;
             border: 8px solid white;
             box-shadow: 0 30px 60px rgba(0, 0, 0, 0.05);
+        }
+
+        .about-img img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
         }
 
         .about-text p {
@@ -1375,11 +1520,36 @@
 
         <!-- --- Hero --- -->
         <section class="hero" id="top">
-            <div class="video-container" id="videoContainer">
-                <!-- Placeholder – replace with actual video embed -->
-                <div class="video-placeholder">
-                    <div class="play-icon"></div>
-                    <span style="font-size: 14px;">Видео скоро будет добавлено</span>
+            <div class="video-wrapper" id="videoContainer">
+                <video id="heroVideo" playsinline poster="sergey-hero.jpg" preload="metadata">
+                    <source src="hero-video-480.mp4" type="video/mp4">
+                    <source src="hero-video.mov" type="video/quicktime">
+                </video>
+
+                <!-- Start overlay -->
+                <div class="vp-start-overlay" id="videoOverlay" onclick="vpTogglePlay()">
+                    <div class="vp-play-btn"></div>
+                    <span class="vp-start-label">Нажмите, чтобы посмотреть</span>
+                </div>
+
+                <!-- Controls bar -->
+                <div class="vp-controls" id="vpControls">
+                    <div class="vp-progress" id="vpProgress">
+                        <div class="vp-progress-fill" id="vpFill"></div>
+                    </div>
+                    <div class="vp-row">
+                        <button class="vp-btn" id="vpPlayPauseBtn" onclick="vpTogglePlay()" title="Плей/Пауза">▶️</button>
+                        <span class="vp-time" id="vpTime">0:00 / 0:00</span>
+                        <select class="vp-speed" id="vpSpeed" onchange="vpSetSpeed(this.value)" title="Скорость">
+                            <option value="0.5">0.5×</option>
+                            <option value="0.75">0.75×</option>
+                            <option value="1" selected>1×</option>
+                            <option value="1.25">1.25×</option>
+                            <option value="1.5">1.5×</option>
+                            <option value="2">2×</option>
+                        </select>
+                        <button class="vp-btn" onclick="vpFullscreen()" title="Полный экран">⛶</button>
+                    </div>
                 </div>
             </div>
             <h1>Нумерология для <span class="shimmer-text">всех</span></h1>
@@ -1752,7 +1922,7 @@
         <!-- --- About Sergey --- -->
         <section class="about-section animate-on-scroll" id="about">
             <div class="about-img">
-                <img src="sergey.png" style="width: 100%; height: 100%; object-fit: cover; object-position: top center;" alt="Сергей Адамович — нумеролог для предпринимателей">
+                <img src="sergey.png" alt="Сергей Адамович — нумеролог для предпринимателей">
             </div>
             <div class="about-text">
                 <div class="section-label" style="text-align: left;">Об авторе</div>
@@ -1983,6 +2153,99 @@
     </div>
 
     <script>
+        /* --- Hero Video Player --- */
+        const heroVideo    = document.getElementById('heroVideo');
+        const videoOverlay = document.getElementById('videoOverlay');
+        const vpContainer  = document.getElementById('videoContainer');
+        const vpFill       = document.getElementById('vpFill');
+        const vpTime       = document.getElementById('vpTime');
+        const vpPlayBtn    = document.getElementById('vpPlayPauseBtn');
+        const vpProgressEl = document.getElementById('vpProgress');
+
+        function fmtTime(s) {
+            s = Math.floor(s || 0);
+            const m = Math.floor(s / 60);
+            return m + ':' + String(s % 60).padStart(2, '0');
+        }
+
+        function vpTogglePlay() {
+            if (heroVideo.paused) {
+                heroVideo.play();
+            } else {
+                heroVideo.pause();
+            }
+        }
+
+        heroVideo.addEventListener('play', function() {
+            videoOverlay.classList.add('hidden');
+            vpContainer.classList.add('playing');
+            vpPlayBtn.textContent = '⏸';
+        });
+        heroVideo.addEventListener('pause', function() {
+            vpContainer.classList.remove('playing');
+            vpPlayBtn.textContent = '▶️';
+            // Show overlay only if video hasn't started yet
+            if (heroVideo.currentTime === 0) {
+                videoOverlay.classList.remove('hidden');
+            }
+        });
+
+        // Update progress bar and time
+        heroVideo.addEventListener('timeupdate', function() {
+            if (!heroVideo.duration) return;
+            const pct = (heroVideo.currentTime / heroVideo.duration) * 100;
+            vpFill.style.width = pct + '%';
+            vpTime.textContent = fmtTime(heroVideo.currentTime) + ' / ' + fmtTime(heroVideo.duration);
+        });
+
+        // Click on progress bar to seek
+        vpProgressEl.addEventListener('click', function(e) {
+            const rect = vpProgressEl.getBoundingClientRect();
+            const ratio = (e.clientX - rect.left) / rect.width;
+            heroVideo.currentTime = ratio * heroVideo.duration;
+        });
+
+        // Click on video body toggles play/pause (but not controls area)
+        heroVideo.addEventListener('click', vpTogglePlay);
+
+        // Speed control
+        function vpSetSpeed(val) {
+            heroVideo.playbackRate = parseFloat(val);
+        }
+
+        // Fullscreen
+        function vpFullscreen() {
+            const el = vpContainer;
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else if (el.requestFullscreen) {
+                el.requestFullscreen();
+            } else if (el.webkitRequestFullscreen) {
+                el.webkitRequestFullscreen(); // Safari / iOS
+            } else {
+                // iOS fallback — fullscreen the video element itself
+                heroVideo.webkitEnterFullscreen && heroVideo.webkitEnterFullscreen();
+            }
+        }
+
+        // Auto-pause when scrolled out of view, resume when back
+        const vpObserver = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+                if (!entry.isIntersecting) {
+                    if (!heroVideo.paused) {
+                        heroVideo.pause();
+                        heroVideo.dataset.autoPaused = 'true';
+                    }
+                } else {
+                    if (heroVideo.dataset.autoPaused === 'true') {
+                        heroVideo.play();
+                        heroVideo.dataset.autoPaused = '';
+                    }
+                }
+            });
+        }, { threshold: 0.2 });
+        vpObserver.observe(heroVideo);
+
         /* --- Timer (12h from first visit) --- */
         const TIMER_KEY = 'offer_deadline';
         const HOURS_12 = 12 * 60 * 60 * 1000;
